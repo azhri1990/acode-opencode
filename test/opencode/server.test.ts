@@ -10,6 +10,7 @@ import {
 } from '../../src/opencode/server';
 import * as executorModule from '../../src/terminal/executor';
 import { SERVER_PASSWORD_ENV, PORT } from '../../src/config/server';
+import { HEALTH_CONFIG_URL } from '../../src/config/health';
 import {
   STOP_POLL_INTERVAL,
   STOP_POLL_TIMEOUT,
@@ -295,6 +296,24 @@ describe('waitForReady', () => {
 
     // Assert
     await expect(promise).resolves.toBeUndefined();
+  });
+
+  it('should_probe_with_the_launch_password', async () => {
+    // Arrange — a V2 launch holds the password the API expects
+    mockExecute.mockResolvedValue('2.1.2');
+    await startServer();
+    mockSendRequest.mockClear();
+    respondUp();
+
+    // Act
+    await waitForReady();
+
+    // Assert
+    const [url, options] = mockSendRequest.mock.calls[0];
+    expect(url).toBe(HEALTH_CONFIG_URL);
+    expect((options as { headers?: Record<string, string> }).headers?.Authorization).toBe(
+      `Basic ${btoa(`opencode:${getServerPassword()}`)}`,
+    );
   });
 
   it('should_throw_timeout_with_alive_when_pgrep_has_output', async () => {

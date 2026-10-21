@@ -38,9 +38,9 @@ Acode plugin (Android WebView) that launches OpenCode as a background HTTP serve
 
 - `eslint` and `prettier` packages are **not installed** (configs exist but are inert). Install them before running lint/format.
 - Tests use Vitest with jsdom (`npm test`). Test files live under `test/`, mirroring the `src/` tree (e.g. `test/opencode/server.test.ts`), and import from `../src/...` / `../../src/...`. `vitest.config.ts` `include` is `test/**/*.test.ts`; tsconfig excludes `test/**/*`.
-- `plugin.json` is configured for publishing: `id` `com.victozee.opencode`, `name` `OpenCode AI`, `version` `0.3.0`, `main` `dist/main.js`, author set from git identity. Bump `version` + `changelogs.md` for each release.
+- `plugin.json` is configured for publishing: `id` `com.victozee.opencode`, `name` `OpenCode AI`, `version` `0.3.1`, `main` `dist/main.js`, author set from git identity. Bump `version` + `changelogs.md` for each release.
 - `html-tag-js` is listed as a dependency but currently unused — all DOM is vanilla `document.createElement`.
-- Health-check uses `cordova.plugin.http` (Cordova Advanced HTTP) only — it runs on the native network stack so WebView CORS does NOT apply and a loopback probe to `127.0.0.1:4123` actually resolves (a plain `fetch` to loopback hangs forever in this WebView). There is NO `fetch` fallback: `isServerUp()` returns `false` immediately when `cordova.plugin.http` is absent, so tests stub `window.cordova.plugin.http` rather than relying on a browser `fetch`. Do not reintroduce a `fetch` probe. See `src/opencode/AGENTS.md`.
+- Health-check uses `cordova.plugin.http` (Cordova Advanced HTTP) only — it runs on the native network stack so WebView CORS does NOT apply and a loopback probe to `127.0.0.1:4123` actually resolves (a plain `fetch` to loopback hangs forever in this WebView). There is NO `fetch` fallback: `isServerUp()` returns `false` immediately when `cordova.plugin.http` is absent, so tests stub `window.cordova.plugin.http` rather than relying on a browser `fetch`. Do not reintroduce a `fetch` probe. The probe identifies OpenCode by its API, not by "something answered on the port": `/api/config` (V2 — JSON with basic auth, `401` without) and `/global/health` (V1 — JSON). Both servers answer unknown paths with the SPA shell (HTML), so an HTML answer must never be read as "OpenCode is up". See `src/opencode/AGENTS.md`.
 
 # DOX framework
 
@@ -128,7 +128,7 @@ When the user requests a durable behavior change, record it here or in the relev
 
 ## Child DOX Index
 
-- `src/opencode/AGENTS.md` — OpenCode lifecycle: install checks, installation, server start/stop/restart, health polling, update checking, runtime version diagnostics (node/npm for the error view), version-aware V2 serve auth (per-launch password + pairing-code iframe sign-in, V1 fallback).
+- `src/opencode/AGENTS.md` — OpenCode lifecycle: install checks, installation, server start/stop/restart, API-surface health polling (V2 `/api/config`, V1 `/global/health`), update checking, runtime version diagnostics (node/npm for the error view), version-aware V2 serve auth (per-launch password + auth_token iframe sign-in, V1 fallback).
 - `src/ui/AGENTS.md` — DOM rendering layer: render orchestrator per state, vanilla DOM component factories, external CSS styles loaded via `<link>`.
 - `src/terminal/AGENTS.md` — Terminal abstraction wrapping global `Executor`.
 - `src/config/AGENTS.md` — Named constants: domain split (server, opencode, auth, health, ui, app, settings, update), barrel, leaf-import rule.

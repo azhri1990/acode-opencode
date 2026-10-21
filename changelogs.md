@@ -1,5 +1,9 @@
 # Changelogs
 
+## 0.3.1
+- Fixed the server check on OpenCode v2: it probed the v1-only `/global/health` route, which v2 answers with the web UI shell, so any HTTP server on the port could pass for OpenCode.
+- The check now identifies OpenCode by its API — `/api/config` on v2 (JSON with sign-in, `401` without) and `/global/health` on v1 — and only counts JSON answers as a running server.
+
 ## 0.3.0
 - V2 compactable and still backward compactable with V1
 - V1 installs keep working unchanged pressing Update migrates V1 to V2.

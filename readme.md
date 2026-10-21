@@ -4,7 +4,7 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)
+![Version](https://img.shields.io/badge/version-0.3.1-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Acode](https://img.shields.io/badge/Acode-Compatible-orange.svg)
 
@@ -81,7 +81,7 @@ src/
     server.ts           # startServer, stopServer, restartServer
     auth.ts             # per-launch password, auth_token iframe sign-in
     update.ts           # checkForUpdates, installUpdate
-    health.ts           # loopback health probe via cordova.plugin.http
+    health.ts           # version-aware OpenCode API probe via cordova.plugin.http
   ui/
     index.ts            # render orchestrator, one render func per state
     components/         # DOM factory functions, one file per component

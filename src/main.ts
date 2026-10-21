@@ -535,7 +535,7 @@ export class AcodePlugin {
         const epoch = this.healthProbeEpoch;
         this.healthCheckInProgress = true;
         try {
-          const down = await isServerDownConfirmed();
+          const down = await isServerDownConfirmed({ password: getServerPassword() });
           if (epoch !== this.healthProbeEpoch) {
             return;
           }

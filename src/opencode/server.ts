@@ -119,7 +119,7 @@ export async function waitForReady(): Promise<void> {
   log.info('waitForReady: polling started');
 
   while (Date.now() - startedAt < READY_TIMEOUT) {
-    const up = await isServerUp();
+    const up = await isServerUp({ password: serverPassword });
     log.info(`waitForReady: poll attempt -> isServerUp=${up} (${Date.now() - startedAt}ms)`);
     if (up) {
       log.info('waitForReady: server ready');
@@ -150,7 +150,7 @@ async function pollUntilDown(timeout: number): Promise<boolean> {
   log.info(`pollUntilDown: polling for ${timeout}ms`);
 
   while (Date.now() - startedAt < timeout) {
-    const up = await isServerUp();
+    const up = await isServerUp({ password: serverPassword });
     log.info(`pollUntilDown: isServerUp=${up}`);
     if (!up) {
       log.info(`pollUntilDown: server down after ${Date.now() - startedAt}ms`);
