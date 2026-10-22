@@ -29,8 +29,18 @@ function base64UrlEncode(value: string): string {
  * plugin started or whose password the user provided.
  */
 export function buildAuthTokenUrl(password: string): string {
+  return buildAuthTokenUrlFor(BASE_URL, password);
+}
+
+/**
+ * Builds the sign-in URL for a specific server base URL.
+ *
+ * Same token format as `buildAuthTokenUrl`, but pointed at an arbitrary base
+ * URL — used for remote servers, which the plugin does not start itself.
+ */
+export function buildAuthTokenUrlFor(baseUrl: string, password: string): string {
   const token = base64UrlEncode(`${SERVER_USERNAME}:${password}`);
-  return `${BASE_URL}/?${AUTH_TOKEN_PARAM}=${token}`;
+  return `${baseUrl}/?${AUTH_TOKEN_PARAM}=${token}`;
 }
 
 /**

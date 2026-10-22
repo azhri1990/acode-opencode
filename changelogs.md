@@ -1,5 +1,12 @@
 # Changelogs
 
+## 0.4.0
+- Added a **Remote host** setting: point the plugin at an OpenCode server running on another machine (`192.168.1.10:4096`, `https://host`, or a bracketed IPv6 address) and it connects to that server instead of installing and starting one on the device.
+- Remote connections sign in automatically: the plugin asks for the server password once per session and embeds the sign-in URL. Cancelling the prompt still opens the web UI for a manual login.
+- The connection check now tells "the server wants a password" from "the server cannot be reached", so a wrong password and an unreachable host produce different errors.
+- The background health check follows the connection: it watches the remote server while in remote mode.
+- The "Reinstall OpenCode" action is hidden in remote mode — there is no local OpenCode to reinstall.
+
 ## 0.3.2
 - The server now runs on Acode's foreground executor, so Android no longer kills it when Acode goes to the background. Acode shows a persistent notification while the server runs.
 - Fixed the package manifest: `main` now points at the file the zip actually ships (`main.js`), the plugin declares the readme and the extra asset folders, and the minimum Acode version is raised to 954 — the build that introduced the notification API the plugin uses.

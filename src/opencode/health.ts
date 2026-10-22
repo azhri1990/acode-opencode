@@ -1,6 +1,6 @@
 import {
-  HEALTH_CHECK_URL,
-  HEALTH_CONFIG_URL,
+  HEALTH_CONFIG_PATH,
+  HEALTH_CHECK_PATH,
   HEALTH_CHECK_TIMEOUT,
   HEALTH_CRASH_CONFIRM_ATTEMPTS,
   HEALTH_CRASH_RETRY_INTERVAL,
@@ -11,6 +11,7 @@ import {
   HEALTH_WATCHDOG_MARGIN,
   MILLISECONDS_PER_SECOND,
 } from '../config/health';
+import { BASE_URL } from '../config/server';
 import { createLogger } from '../logger';
 import { buildBasicAuthHeader } from './auth';
 
@@ -21,6 +22,9 @@ export interface HealthProbeOptions {
   // Password of the plugin-managed V2 server, when known. Lets the probe read
   // the API answer instead of stopping at the 401 challenge.
   password?: string | null;
+  // Base URL of the server to probe. Defaults to the plugin's own local server
+  // (loopback, port 4123); remote connections point it at the remote host.
+  baseUrl?: string;
 }
 
 // Minimal shape of the Cordova Advanced HTTP plugin we depend on.
@@ -46,10 +50,11 @@ interface CordovaHttp {
 }
 
 // Verdict of a single probe.
-// - `up`          the answer identifies a running OpenCode server
+// - `up`           the answer identifies a running OpenCode server
+// - `unauthorized` the V2 API answered and demands auth (still an OpenCode server)
 // - `inconclusive` something answered, but not in a way that identifies OpenCode
-// - `down`        nothing is listening (or the request never completed)
-type ProbeVerdict = 'up' | 'inconclusive' | 'down';
+// - `down`         nothing is listening (or the request never completed)
+export type ServerProbeResult = 'up' | 'unauthorized' | 'inconclusive' | 'down';
 
 // Resolve the Cordova Advanced HTTP plugin from the global window, if present.
 // It runs on the native network stack, so WebView CORS does NOT apply and a
@@ -98,7 +103,7 @@ function classify(
   status: number | undefined,
   body: string | null,
   successCallback: boolean,
-): ProbeVerdict {
+): ServerProbeResult {
   // A success callback without a status still means the server answered —
   // the native plugin only reports failures through the failure callback.
   const code =
@@ -109,7 +114,7 @@ function classify(
   }
   if (code === HEALTH_STATUS_UNAUTHORIZED) {
     // The V2 API answered and demands auth — that is an OpenCode server.
-    return 'up';
+    return 'unauthorized';
   }
   if (code >= HEALTH_STATUS_SUCCESS_MIN && code <= HEALTH_STATUS_SUCCESS_MAX) {
     if (body === null) {
@@ -143,12 +148,12 @@ function probeOnce(
   http: CordovaHttp,
   url: string,
   headers?: Record<string, string>,
-): Promise<ProbeVerdict> {
-  return new Promise<ProbeVerdict>((resolve) => {
+): Promise<ServerProbeResult> {
+  return new Promise<ServerProbeResult>((resolve) => {
     let settled = false;
     let watchdog: ReturnType<typeof setTimeout> | undefined;
 
-    function settle(verdict: ProbeVerdict): void {
+    function settle(verdict: ServerProbeResult): void {
       if (settled) return;
       settled = true;
       if (watchdog) clearTimeout(watchdog);
@@ -177,7 +182,7 @@ function probeOnce(
 }
 
 /**
- * Probes the running OpenCode server and reports whether it is up.
+ * Probes a server and reports exactly what it found.
  *
  * The server API moved between versions, so the probe walks the known API
  * surfaces in order and accepts the first answer that identifies OpenCode:
@@ -191,42 +196,58 @@ function probeOnce(
  *
  * A body that is not JSON means the answer came from the SPA fallback, so the
  * probe does not treat it as OpenCode — that is what keeps a foreign HTTP
- * server on port 4123 from being mistaken for the OpenCode server.
+ * server on the port from being mistaken for the OpenCode server.
  *
  * The promise never rejects: a slow request is bounded by an independent
  * watchdog so a missing/failed native callback can never hang the caller.
- * Returns `false` immediately when the plugin is absent. There is no `fetch`
+ * Returns `down` immediately when the plugin is absent. There is no `fetch`
  * fallback: a plain `fetch` to loopback hangs in this WebView.
+ *
+ * The verdict distinguishes an auth challenge (`unauthorized`) from a server
+ * that is simply not there (`down`), so a remote connection can tell "needs a
+ * password" from "cannot reach the host".
  */
-export async function isServerUp(options: HealthProbeOptions = {}): Promise<boolean> {
+export async function probeServer(options: HealthProbeOptions = {}): Promise<ServerProbeResult> {
   const http = getCordovaHttp();
   if (!http) {
-    log.warn('isServerUp: cordova.plugin.http unavailable — cannot probe');
-    return false;
+    log.warn('probeServer: cordova.plugin.http unavailable — cannot probe');
+    return 'down';
   }
 
+  const baseUrl = options.baseUrl ?? BASE_URL;
   const authHeaders = options.password
     ? { Authorization: buildBasicAuthHeader(options.password) }
     : undefined;
 
   const probes: { url: string; headers?: Record<string, string> }[] = [
-    { url: HEALTH_CONFIG_URL, headers: authHeaders },
-    { url: HEALTH_CHECK_URL },
+    { url: `${baseUrl}${HEALTH_CONFIG_PATH}`, headers: authHeaders },
+    { url: `${baseUrl}${HEALTH_CHECK_PATH}` },
   ];
 
+  let last: ServerProbeResult = 'down';
   for (const probe of probes) {
     const verdict = await probeOnce(http, probe.url, probe.headers);
-    log.debug(`isServerUp: ${probe.url} -> ${verdict}`);
-    if (verdict === 'up') {
-      return true;
+    log.debug(`probeServer: ${probe.url} -> ${verdict}`);
+    if (verdict === 'inconclusive') {
+      last = verdict;
+      continue;
     }
-    if (verdict === 'down') {
-      return false;
-    }
+    return verdict;
   }
 
-  log.debug('isServerUp: no probe identified an OpenCode server — down');
-  return false;
+  log.debug('probeServer: no probe identified an OpenCode server');
+  return last;
+}
+
+/**
+ * Probes the running OpenCode server and reports whether it is up.
+ *
+ * An auth challenge counts as up: the `401` proves an auth-walled OpenCode
+ * server is listening, which is all this check asks.
+ */
+export async function isServerUp(options: HealthProbeOptions = {}): Promise<boolean> {
+  const verdict = await probeServer(options);
+  return verdict === 'up' || verdict === 'unauthorized';
 }
 
 /**

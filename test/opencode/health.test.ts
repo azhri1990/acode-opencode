@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { isServerUp, isServerDownConfirmed } from '../../src/opencode/health';
+import { isServerUp, isServerDownConfirmed, probeServer } from '../../src/opencode/health';
 import {
   HEALTH_CHECK_TIMEOUT,
   HEALTH_CRASH_CONFIRM_ATTEMPTS,
@@ -7,6 +7,7 @@ import {
   HEALTH_CHECK_URL,
   HEALTH_CONFIG_URL,
 } from '../../src/config/health';
+import { BASE_URL } from '../../src/config/server';
 
 const mockSendRequest = vi.fn();
 
@@ -235,6 +236,75 @@ describe('isServerUp', () => {
     expect(
       (options as { headers?: Record<string, string> }).headers?.Authorization,
     ).toBeUndefined();
+  });
+});
+
+describe('probeServer', () => {
+  it('should_return_unauthorized_when_api_route_answers_401', async () => {
+    // Arrange — the V2 API challenges every unauthenticated request
+    setHttp();
+    respondWithStatus(401);
+
+    // Act
+    const result = await probeServer();
+
+    // Assert
+    expect(result).toBe('unauthorized');
+  });
+
+  it('should_return_up_when_api_route_answers_json', async () => {
+    // Arrange
+    setHttp();
+    respondWith({ status: 200, data: '[]' });
+
+    // Act
+    const result = await probeServer();
+
+    // Assert
+    expect(result).toBe('up');
+  });
+
+  it('should_return_down_when_cordova_http_absent', async () => {
+    // Arrange
+    clearHttp();
+
+    // Act
+    const result = await probeServer();
+
+    // Assert
+    expect(result).toBe('down');
+  });
+
+  it('should_probe_the_given_base_url_when_one_is_passed', async () => {
+    // Arrange
+    setHttp();
+    respondWith({ status: 200, data: '[]' });
+
+    // Act
+    await probeServer({ baseUrl: 'http://192.168.1.10:4096' });
+
+    // Assert
+    expect(mockSendRequest.mock.calls[0][0]).toBe('http://192.168.1.10:4096/api/config');
+  });
+
+  it('should_fall_back_to_the_health_route_when_api_route_answers_html', async () => {
+    // Arrange — V1 has no /api/* routes and answers them with the SPA shell
+    setHttp();
+    mockSendRequest.mockImplementation(
+      (url: string, _o: unknown, success: (r?: MockResponse) => void) =>
+        success(
+          url.endsWith('/api/config')
+            ? { status: 200, data: '<!doctype html><title>OpenCode</title>' }
+            : { status: 200, data: '{"healthy":true,"version":"1.19.3"}' },
+        ),
+    );
+
+    // Act
+    const result = await probeServer();
+
+    // Assert
+    expect(result).toBe('up');
+    expect(mockSendRequest.mock.calls[1][0]).toBe(`${BASE_URL}/global/health`);
   });
 });
 

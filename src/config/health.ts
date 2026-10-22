@@ -1,14 +1,22 @@
 import { BASE_URL } from './server';
 
-// Probe target for V1 servers (opencode 1.x): a real route that answers
-// `{"healthy":true,...}` as JSON. Kept as the fallback probe — V2 serves its
-// API under /api/* and answers this path with the SPA shell instead.
-export const HEALTH_CHECK_URL = `${BASE_URL}/global/health`;
+// API path of V2 servers (opencode 2.x), relative to the server base URL.
+// The route answers JSON when the request carries valid basic auth and `401`
+// when it does not; V1 has no /api/* routes and answers this path with the
+// SPA shell.
+export const HEALTH_CONFIG_PATH = '/api/config';
 
-// Probe target for V2 servers (opencode 2.x): the API root. Answers JSON when
-// the request carries valid basic auth and `401` when it does not; V1 has no
-// /api/* routes and answers this path with the SPA shell.
-export const HEALTH_CONFIG_URL = `${BASE_URL}/api/config`;
+// Health path of V1 servers (opencode 1.x), relative to the server base URL.
+// A real route that answers `{"healthy":true,...}` as JSON. Kept as the
+// fallback probe — V2 serves its API under /api/* and answers this path with
+// the SPA shell instead.
+export const HEALTH_CHECK_PATH = '/global/health';
+
+// Probe target for V1 servers (opencode 1.x) on the local server.
+export const HEALTH_CHECK_URL = `${BASE_URL}${HEALTH_CHECK_PATH}`;
+
+// Probe target for V2 servers (opencode 2.x) on the local server.
+export const HEALTH_CONFIG_URL = `${BASE_URL}${HEALTH_CONFIG_PATH}`;
 
 // HTTP status the V2 API answers with when the request carries no (or a
 // wrong) password. Proof that an auth-walled OpenCode server is listening.

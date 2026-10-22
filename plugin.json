@@ -3,7 +3,7 @@
   "id": "com.victozee.opencode",
   "name": "OpenCode AI",
   "main": "main.js",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "repository": "https://github.com/Victozee26/acode-opencode",
   "icon": "icon.png",
   "readme": "readme.md",
