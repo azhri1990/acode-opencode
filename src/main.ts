@@ -205,6 +205,16 @@ export class AcodePlugin {
     }
     this.$page?.hide();
     this.$page = null;
+    // Stop the server this plugin started, so disabling the plugin does not
+    // leave an orphaned `opencode serve` holding port 4123. `stopServer()` is a
+    // no-op when the plugin never started the server (e.g. the user pointed it
+    // at a server that was already running), so an external server is never
+    // touched.
+    try {
+      await stopServer();
+    } catch (err: unknown) {
+      log.warn('destroy: could not stop the server', err);
+    }
     reset();
   }
 

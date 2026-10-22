@@ -4,7 +4,7 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-0.3.1-blue.svg)
+![Version](https://img.shields.io/badge/version-0.3.2-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Acode](https://img.shields.io/badge/Acode-Compatible-orange.svg)
 
@@ -28,11 +28,13 @@
 
 ## Requirements
 
-**Node.js and npm** must be available in Acode's built-in Alpine Linux terminal, and OpenCode is installed automatically on first launch. Acode must be a recent version with Terminal and Executor API support:
+**Node.js and npm** must be available in Acode's built-in Alpine Linux terminal, and OpenCode is installed automatically on first launch. Acode must be a recent version with Terminal and Executor API support (version code 954 or newer):
 
 ```bash
 apk add --no-cache nodejs npm
 ```
+
+The server runs as an Acode foreground service, so Acode shows a persistent notification while OpenCode is up. That is what keeps the server alive when Acode is not in the foreground.
 
 ## Features
 
@@ -52,7 +54,6 @@ apk add --no-cache nodejs npm
 ### Having trouble?
 
 If the automatic install fails, you can run the installation commands manually in terminal
-make ur research just incase
 
 ### How It Works
 

@@ -1,5 +1,12 @@
 # Changelogs
 
+## 0.3.2
+- The server now runs on Acode's foreground executor, so Android no longer kills it when Acode goes to the background. Acode shows a persistent notification while the server runs.
+- Fixed the package manifest: `main` now points at the file the zip actually ships (`main.js`), the plugin declares the readme and the extra asset folders, and the minimum Acode version is raised to 954 — the build that introduced the notification API the plugin uses.
+- The plugin now checks that Acode's terminal environment is installed before running commands, and says so instead of failing with an opaque shell error.
+- Disabling the plugin now stops the server it started, so no orphaned `opencode serve` keeps holding the port.
+- Removed a stylesheet that no longer exists (it 404'd on every launch).
+
 ## 0.3.1
 - Fixed the server check on OpenCode v2: it probed the v1-only `/global/health` route, which v2 answers with the web UI shell, so any HTTP server on the port could pass for OpenCode.
 - The check now identifies OpenCode by its API — `/api/config` on v2 (JSON with sign-in, `401` without) and `/global/health` on v1 — and only counts JSON answers as a running server.

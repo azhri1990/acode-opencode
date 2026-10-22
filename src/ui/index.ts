@@ -66,7 +66,6 @@ const STYLESHEETS = [
   'styles/errorDisplay.css',
   'styles/iframe.css',
   'styles/ready.css',
-  'styles/confirmModal.css',
 ];
 
 let orientationMql: MediaQueryList | null = null;
