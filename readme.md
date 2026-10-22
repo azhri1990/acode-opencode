@@ -1,5 +1,5 @@
 <div align="center" style="padding: 14px 10%;">
-  <img src="https://raw.githubusercontent.com/Victozee26/acode-opencode/main/asset/opencode-wordmark-dark.png" alt="OpenCode wordmark" width="100%"/>
+  <img src="https://raw.githubusercontent.com/azhri1990/acode-opencode/main/asset/opencode-wordmark-dark.png" alt="OpenCode wordmark" width="100%"/>
 </div>
 
 <div align="center">
@@ -19,11 +19,11 @@
 ## Screenshot
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/Victozee26/acode-opencode/main/asset/SCREENSHOT-1.png" alt="OpenCode running inside Acode" width="100%"/>
+  <img src="https://raw.githubusercontent.com/azhri1990/acode-opencode/main/asset/SCREENSHOT-1.png" alt="OpenCode running inside Acode" width="100%"/>
 </div>
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/Victozee26/acode-opencode/main/asset/SCREENSHOT-2.png" alt="OpenCode prompt interface" width="40%"/>
+  <img src="https://raw.githubusercontent.com/azhri1990/acode-opencode/main/asset/SCREENSHOT-2.png" alt="OpenCode prompt interface" width="40%"/>
 </div>
 
 ## Requirements
@@ -119,7 +119,7 @@ This project (the Acode OpenCode integration) is licensed under the MIT License.
 
 ## Support & Contact
 
-- **Issues**: [GitHub Issues](https://github.com/Victozee26/acode-opencode/issues)
+- **Issues**: [GitHub Issues](https://github.com/azhri1990/acode-opencode/issues)
 - **Email**: victorelijha@gmail.com
 
 ---

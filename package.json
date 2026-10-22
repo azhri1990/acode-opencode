@@ -3,8 +3,8 @@
   "version": "0.4.0",
   "description": "Launch OpenCode as a background server inside Acode and embed its web UI.",
   "main": "dist/main.js",
-  "repository": "https://github.com/Victozee26/acode-opencode.git",
-  "author": "Acode Foundation",
+  "repository": "https://github.com/azhri1990/acode-opencode.git",
+  "author": "azhri1990",
   "license": "MIT",
   "dependencies": {
     "acode-plugin-types": "^1.12.9",

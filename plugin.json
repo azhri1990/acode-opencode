@@ -4,7 +4,7 @@
   "name": "OpenCode AI",
   "main": "main.js",
   "version": "0.4.0",
-  "repository": "https://github.com/Victozee26/acode-opencode",
+  "repository": "https://github.com/azhri1990/acode-opencode",
   "icon": "icon.png",
   "readme": "readme.md",
   "files": ["styles/", "asset/"],
@@ -14,9 +14,9 @@
   "keywords": ["ai", "coding", "agent", "opencode", "llm", "assistant", "terminal"],
   "price": 0,
   "author": {
-    "name": "Victor",
-    "email": "victorelisha26@gmail.com",
-    "github": "Victozee26",
-    "url": "https://github.com/Victozee26"
+    "name": "azhri1990",
+    "email": "azhri1990@gmail.com",
+    "github": "azhri1990",
+    "url": "https://github.com/azhri1990"
   }
 }
