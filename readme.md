@@ -34,7 +34,7 @@
 apk add --no-cache nodejs npm
 ```
 
-The server runs as an Acode foreground service, so Acode shows a persistent notification while OpenCode is up. That is what keeps the server alive when Acode is not in the foreground.
+The server runs on Acode's foreground executor, so Android cannot kill it while Acode is in the background. Acode keeps its usual "Acode Service" notification on screen for as long as that executor runs — the same notification the terminal shows — and that notification is what keeps the server alive. It also offers a wake-lock button and an Exit action for the service.
 
 ## Features
 
